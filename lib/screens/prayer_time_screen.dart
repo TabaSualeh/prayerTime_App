@@ -1,3 +1,5 @@
+// ignore_for_file: prefer_const_constructors
+
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -29,10 +31,66 @@ class _PrayerTimeScreenState extends State<PrayerTimeScreen> {
     });
   }
 
-  String? cityName ;
+  bool _showSearch = false;
+  String cityName = "";
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: false,
+      extendBodyBehindAppBar: true,
+      appBar: AppBar(
+        title: _showSearch
+            ? Container(
+                decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(15),
+                    color: Colors.deepPurple[800]!.withOpacity(0.4)),
+                child: TextField(
+                  style: TextStyle(color: Colors.white.withOpacity(0.8)),
+                  autofocus: true,
+                  onEditingComplete: () {
+                    FocusManager.instance.primaryFocus?.unfocus();
+                    _showSearch = false;
+                  },
+                  onSubmitted: ((value) {
+                    cityName = value;
+                    _showSearch = false;
+                    FocusManager.instance.primaryFocus?.unfocus();
+                    getPrayerTime(city: cityName.toLowerCase());
+                  }),
+                  decoration: InputDecoration(
+                    hintStyle: TextStyle(
+                        fontSize: 17, color: Colors.white60.withOpacity(0.3)),
+                    hintText: 'Search City name',
+                    border: InputBorder.none,
+                    prefixIcon: Icon(
+                      Icons.search,
+                      color: Colors.white60,
+                    ),
+                  ),
+                ),
+              )
+            : Text(
+                "Prayer Time",
+                style: Theme.of(context).textTheme.bodyLarge,
+              ),
+        centerTitle: true,
+        actions: [
+          IconButton(
+            color: Colors.white60,
+            splashColor: Colors.transparent,
+            highlightColor: Colors.transparent,
+            icon: _showSearch ? Icon(Icons.cancel_rounded) : Icon(Icons.search),
+            onPressed: () {
+              setState(() {
+                _showSearch = !_showSearch;
+              });
+            },
+          ),
+        ],
+        elevation: 0.0,
+        automaticallyImplyLeading: false,
+        backgroundColor: Colors.transparent,
+      ),
       body: Container(
         decoration: const BoxDecoration(
             image: DecorationImage(
@@ -43,35 +101,29 @@ class _PrayerTimeScreenState extends State<PrayerTimeScreen> {
           const SizedBox(
             height: 70,
           ),
-          TextField(
-                onChanged: ((value) {
-                  cityName = value;
-                  getPrayerTime(city: cityName!);
-                
-                }),),
           Text(
-            "${time.city}",
+            time.city == null || time.city == "" ? "----" : "${time.city}",
             style: Theme.of(context).textTheme.bodyLarge,
           ),
           const SizedBox(
             height: 10,
           ),
           Text(
-           "${time.date}",
+            time.city == null ? "--/--/--" : "${time.date}",
             style: Theme.of(context).textTheme.bodyMedium,
           ),
           Spacer(),
           _timeCard(
-              "Fajr", "${time.today?.fajr}"),
+              "Fajr", time.city == null ? "--:--" : "${time.today?.fajr}"),
           _timeCard("Sunrise",
-              "${time.today?.sunrise}"),
+              time.city == null ? "--:--" : "${time.today?.sunrise}"),
           _timeCard(
-              "Dhuhr", "${time.today?.dhuhr}"),
-          _timeCard("Asr", "${time.today?.asr}"),
+              "Dhuhr", time.city == null ? "--:--" : "${time.today?.dhuhr}"),
+          _timeCard("Asr", time.city == null ? "--:--" : "${time.today?.asr}"),
           _timeCard("Maghrib",
-               "${time.today?.maghrib}"),
+              time.city == null ? "--:--" : "${time.today?.maghrib}"),
           _timeCard(
-              "Ishak","${time.today?.ishaA}"),
+              "Isha'A", time.city == null ? "--:--" : "${time.today?.ishaA}"),
           const SizedBox(
             height: 20,
           ),
