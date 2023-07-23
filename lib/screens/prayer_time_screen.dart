@@ -1,5 +1,3 @@
-// ignore_for_file: prefer_const_constructors
-
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -17,18 +15,24 @@ class _PrayerTimeScreenState extends State<PrayerTimeScreen> {
 
   @override
   void initState() {
-    getPrayerTime();
     super.initState();
+    Future.delayed(Duration.zero, () {
+      getPrayerTime();
+    });
   }
 
   Future<void> getPrayerTime({String city = "karachi"}) async {
+    showDialog(
+        context: context,
+        builder: (context) {
+          return const Center(child: CircularProgressIndicator());
+        });
     http.Response response = await http
-        .get(Uri.parse("https://dailyprayer.abdulrcs.repl.co/api/${city}"));
-    print(response.statusCode);
-
+        .get(Uri.parse("https://dailyprayer.abdulrcs.repl.co/api/$city"));
     setState(() {
       time = PrayerTime.fromJson(jsonDecode(response.body));
     });
+    Navigator.of(context).pop();
   }
 
   bool _showSearch = false;
@@ -62,7 +66,7 @@ class _PrayerTimeScreenState extends State<PrayerTimeScreen> {
                         fontSize: 17, color: Colors.white60.withOpacity(0.3)),
                     hintText: 'Search City name',
                     border: InputBorder.none,
-                    prefixIcon: Icon(
+                    prefixIcon: const Icon(
                       Icons.search,
                       color: Colors.white60,
                     ),
@@ -79,7 +83,7 @@ class _PrayerTimeScreenState extends State<PrayerTimeScreen> {
             color: Colors.white60,
             splashColor: Colors.transparent,
             highlightColor: Colors.transparent,
-            icon: _showSearch ? Icon(Icons.cancel_rounded) : Icon(Icons.search),
+            icon: _showSearch ? const Icon(Icons.cancel_rounded) : Icon(Icons.search),
             onPressed: () {
               setState(() {
                 _showSearch = !_showSearch;
@@ -112,7 +116,7 @@ class _PrayerTimeScreenState extends State<PrayerTimeScreen> {
             time.city == null ? "--/--/--" : "${time.date}",
             style: Theme.of(context).textTheme.bodyMedium,
           ),
-          Spacer(),
+          const Spacer(),
           _timeCard(
               "Fajr", time.city == null ? "--:--" : "${time.today?.fajr}"),
           _timeCard("Sunrise",
